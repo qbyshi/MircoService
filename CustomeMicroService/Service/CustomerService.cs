@@ -2,7 +2,7 @@
 {
     public class CustomerService : ICustomerService
     {
-
+        
         private readonly ICustomerRepository _customerRepository;
 
         public CustomerService(ICustomerRepository customerRepository)
@@ -43,8 +43,7 @@
                 customers.AddRange(lowCustomers);
             }
 
-
-            return customers;
+            return customers.OrderBy(x=>x.Rank).ToList();            
 
         }
 

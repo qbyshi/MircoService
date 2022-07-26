@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+//using Microsoft.EntityFrameworkCore;
 using CustomeMicroService;
 using CustomeMicroService.Service;
 
@@ -10,18 +10,17 @@ namespace CustomeMicroService
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-          //  builder.Services.AddSingleton(new CustomerDBContext(new DbContextOptions<CustomerDBContext>()));
-            builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+            // Add services to the container.     
+            builder.Services.AddSingleton<ICustomerService, CustomerService>();
+            builder.Services.AddSingleton<ICustomerRepository, FakeCustomerRepository>();
             //builder.Services.Scan(scan => scan.FromAssemblyOf<CustomerService>()
             //    .AddClasses(t => t.Where(type => type.Name.EndsWith("Service") || type.Name.EndsWith("Repository")))
             //    .AsImplementedInterfaces());
 
 
             builder.Services.AddControllers();
-            builder.Services.AddDbContext<CustomerDBContext>(opt =>
-               opt.UseInMemoryDatabase("Customers"));
+            //builder.Services.AddDbContext<CustomerDBContext>(opt =>
+            //   opt.UseInMemoryDatabase("Customers"));
 
             var app = builder.Build();
 

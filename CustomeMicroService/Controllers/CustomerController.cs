@@ -14,9 +14,7 @@ namespace CustomeMicroService.Controllers
         {
             _customerService = customerService;
         }
-
         
-        //[Route("{customerId}/score/{score}")]
         [HttpPost("{customerId}/score/{score}")]
         public async Task<decimal> UpdateScoreByCustomerId(long customerId, decimal score)
         {
