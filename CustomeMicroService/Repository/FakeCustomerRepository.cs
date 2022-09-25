@@ -7,7 +7,7 @@
 
         public FakeCustomerRepository()
         {
-            InitData();
+           // InitData();
         }
 
 
