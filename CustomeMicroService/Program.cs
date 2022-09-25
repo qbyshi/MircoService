@@ -12,7 +12,6 @@ namespace CustomeMicroService
 
             // Add services to the container.     
             builder.Services.AddSingleton<ICustomerService, CustomerService>();
-            builder.Services.AddSingleton<ICustomerRepository, FakeCustomerRepository>();
             //builder.Services.Scan(scan => scan.FromAssemblyOf<CustomerService>()
             //    .AddClasses(t => t.Where(type => type.Name.EndsWith("Service") || type.Name.EndsWith("Repository")))
             //    .AsImplementedInterfaces());

@@ -22,13 +22,13 @@ namespace CustomeMicroService.Controllers
         }
 
         [HttpGet("Leaderboard")]
-        public async Task<IEnumerable<Customer>> Leaderboard(int startRank, int endRank)
+        public async Task<IEnumerable<LeaderBoard>> Leaderboard(int startRank, int endRank)
         {
             return await _customerService.GetCustomersByRank(startRank, endRank);
         }
 
         [HttpGet("Leaderboard/{customerId}")]
-        public async Task<IEnumerable<Customer>> GetLeaderboardByCustomerId(long customerId,int high, int low)
+        public async Task<IEnumerable<LeaderBoard>> GetLeaderboardByCustomerId(long customerId,int high, int low)
         {
             return await _customerService.GetCustomersById(customerId, high, low);
         }

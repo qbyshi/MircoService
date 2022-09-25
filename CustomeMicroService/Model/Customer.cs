@@ -14,7 +14,7 @@ namespace CustomeMicroService
             if (0 == result)
             {
 
-                return this.Id.CompareTo(other.Id);
+                return other.Id.CompareTo(Id);
             }
             return result;
         }
