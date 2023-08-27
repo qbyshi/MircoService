@@ -14,7 +14,7 @@ namespace CustomeMicroService
             if (0 == result)
             {
 
-                return other.Id.CompareTo(Id);
+                return Id.CompareTo(other.Id);
             }
             return result;
         }
@@ -25,5 +25,5 @@ namespace CustomeMicroService
         public long CustomerId { get; set; }
         public decimal Score { get; set; }
         public int Rank { get; set; }
-    }   
+    }
 }

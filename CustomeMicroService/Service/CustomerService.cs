@@ -3,69 +3,69 @@
 namespace CustomeMicroService.Service
 {
     public class CustomerService : ICustomerService
-    {
-        private static ConcurrentDictionary<long, decimal> _customerIdScore = new ConcurrentDictionary<long, decimal>();
-        private static List<Customer> _Customers = new List<Customer>();
+    {      
+        private static ConcurrentDictionary<long, Customer> userDictionary = new ConcurrentDictionary<long, Customer>();
+
+        private static AVLTree<Customer> rankingTree = new AVLTree<Customer>();
+
 
 
         public CustomerService()
         {
+
         }
 
 
         public async Task<decimal> UpdateScore(long customerId, decimal scoreGap)
         {
 
-            var newScore = scoreGap;
-            decimal customerScore;
-
-            if (_customerIdScore.TryGetValue(customerId, out customerScore))
+            if (userDictionary.TryGetValue(customerId, out Customer user))
             {
-                newScore = customerScore + scoreGap;
-
-                Customer oldCustomer = new Customer { Id = customerId, Score = customerScore };
-                int originIndex = _Customers.BinarySearch(oldCustomer);
-                _Customers.RemoveAt(originIndex);
+                rankingTree.Delete(user); 
+                user.Score += scoreGap;
+                rankingTree.Insert(user); 
+                return user.Score;
+            }
+            else
+            {
+                var customer = new Customer { Id = customerId, Score = scoreGap };
+                userDictionary.TryAdd(customerId, customer);
+                rankingTree.Insert(customer);
+                return scoreGap;
             }
 
-            _customerIdScore.AddOrUpdate(customerId, newScore, (oldkey, oldvalue) => customerScore);
-
-            Customer newCustomer = new Customer { Id = customerId, Score = newScore };
-            _Customers.Add(newCustomer);
-
-            return await Task.Run(() => newScore);
         }
 
         public async Task<IEnumerable<LeaderBoard>> GetCustomersByRank(int startRank, int endRank)
         {
 
-            var customers = (await Task.Run(() => _Customers.Skip(startRank).Take(endRank - startRank))).ToList();
-
             var result = new List<LeaderBoard>();
 
-            for (int index = 0; index < customers.Count(); index++)
+            var customers = rankingTree.GetElementsByRankRange(startRank, endRank);
+            int index = 0;
+
+            foreach (var customer in customers)
             {
-                result.Add(new LeaderBoard
-                {
-                    CustomerId = customers[index].Id,
-                    Score = customers[index].Score,
-                    Rank = startRank + index
-                }
-                );
+                result.Add(new LeaderBoard() { CustomerId = customer.Id, Score = customer.Score, Rank = startRank + index });
+                index++;
             }
 
-            return result;
 
+            return result;
         }
 
         public async Task<List<LeaderBoard>> GetCustomersById(long customerId, int highRank = 0, int lowRank = 0)
         {
-            var customerInfo = GetCustomerIndexById(customerId);
-            var index = customerInfo.index;
-            var customer = customerInfo.customer;
+            
+            if (!userDictionary.TryGetValue(customerId, out Customer customerInfo))
+            {
+                throw new Exception($"can not find cusomter with id:{customerId}");
+            }
 
-            int startRank = customerInfo.index - highRank;
-            int endRank = customerInfo.index + lowRank;
+            int index = rankingTree.GetRank(customerInfo);
+
+            int startRank = index - highRank;
+            int endRank = index + lowRank;
 
             if (highRank > 0 || lowRank > 0)
             {
@@ -74,27 +74,11 @@ namespace CustomeMicroService.Service
             else
             {
                 return new List<LeaderBoard>()
-                { 
-                    new LeaderBoard { CustomerId = customer.Id, Score = customer.Score, Rank = index }
+                {
+                    new LeaderBoard { CustomerId = customerInfo.Id, Score = customerInfo.Score, Rank = index }
                 };
             }
         }
-
-        private (int index, Customer customer) GetCustomerIndexById(long customerId)
-        {
-            decimal customerScore;
-
-            if (!_customerIdScore.TryGetValue(customerId, out customerScore))
-            {
-                string errorMessage = $"No customer existed with id:{customerId}";
-                throw new Exception(errorMessage);
-            }
-
-            var customer = new Customer { Id = customerId, Score = customerScore };
-
-            return (_Customers.BinarySearch(customer), customer);
-        }
-
 
     }
 }
